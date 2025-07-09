@@ -6,9 +6,9 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/channel', async function (req, res, next) {
+router.get('/channel.m3u8', async function (req, res, next) {
   res.set('Content-Type', 'text/plain');
-  // console.log("req", req.query.id);
+
   let group_id = req.query.id;
   let streamType = "hls_kr";
   let streamUrl = "https://mfwkweb-api.clarovideo.net/services/player/getmedia?crDomain=https://www.clarovideo.com&device_id=693e9af84d3dfcc71e640e005bdc5e2e&device_category=web&device_model=web&device_type=web&device_so=Chrome&format=json&device_manufacturer=generic&authpn=webclient&authpt=tfg1h3j4k6fd7&api_version=v5.93&region=mexico&HKS=web62f31067e85cc&user_id=26822426&user_hash=Njk4NDY2MTB8MTY2MDE3NDUwNnxjNGMyODNiNGI0YmU2Y2QzZTU0MzFkNjM5Yjc2NzNiODMyMTMzMWQwOTdhN2VlMmU2MQ%3D%3D&preview=0&css=0&startTime=16601724000000000&group_id="
@@ -41,12 +41,17 @@ router.get('/channel', async function (req, res, next) {
 
     const data = await response.json();
     let url  = data.response?.media?.video_url;
-    res.send('#EXTINF:-1 tvg-id="132111" tvg-name="Estrella News" tvg-logo="https://images-qa.fubo.tv/station_logos/Estrella_News_c.png",Estrella News\n' +
-        url)
-    // res.send(url); // Send the fetched data as a JSON response
-    console.log(data.response?.media?.video_url);
-    // res.render('index', {title: data.title});
 
+    const urlRes = await fetch(url, {
+      "credentials": "omit",
+      "headers": headers,
+      "method": "GET",
+      "mode": "cors"
+    });
+
+    const dataResp = await urlRes.text();
+
+    res.send(dataResp);
 
   } catch (error) {
     console.error('Error fetching data:', error);
